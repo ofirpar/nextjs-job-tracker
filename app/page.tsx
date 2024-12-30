@@ -17,10 +17,13 @@ import {
 } from "@mui/material";
 import { fetchOpportunities } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { InterviewStatus, Opportunity } from "./types/opportunities";
 
 export default function Dashboard() {
   const router = useRouter();
-  const [statusFilter, setStatusFilter] = React.useState("all");
+  const [statusFilter, setStatusFilter] = React.useState<
+    InterviewStatus | "all"
+  >("all");
   const {
     data: opportunities,
     isLoading,
@@ -41,7 +44,7 @@ export default function Dashboard() {
     if (!opportunities) return [];
     return statusFilter === "all"
       ? opportunities
-      : opportunities.filter((opp) => opp.status === statusFilter);
+      : opportunities.filter((opp: Opportunity) => opp.status === statusFilter);
   }, [opportunities, statusFilter]);
 
   if (isLoading)
@@ -82,17 +85,18 @@ export default function Dashboard() {
         <Select
           labelId="status-filter-label"
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value as string)}
+          onChange={(e) => setStatusFilter(e.target.value as InterviewStatus)}
         >
           <MenuItem value="all">All</MenuItem>
-          <MenuItem value="applied">Applied</MenuItem>
-          <MenuItem value="interviewing">Interviewing</MenuItem>
-          <MenuItem value="offered">Offered</MenuItem>
-          <MenuItem value="rejected">Rejected</MenuItem>
+          {Object.values(InterviewStatus).map((status) => (
+            <MenuItem style={{ textTransform: "capitalize" }} value={status}>
+              {status}
+            </MenuItem>
+          ))}
         </Select>
       </FormControl>
       <Grid container spacing={3}>
-        {filteredOpportunities.map((opportunity) => (
+        {filteredOpportunities.map((opportunity: Opportunity) => (
           <Grid item xs={12} sm={6} md={4} key={opportunity.id}>
             <Card onClick={() => handleOpportunityClick(opportunity.id)}>
               <CardContent>
